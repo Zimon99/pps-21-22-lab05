@@ -4,7 +4,6 @@ import org.junit.Test
 
 class ListTest {
 
-  /** todo */
   @Test
   def testZipRight(): Unit = {}
 
