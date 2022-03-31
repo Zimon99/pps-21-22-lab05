@@ -88,7 +88,6 @@ object List:
 @main def checkBehaviour(): Unit =
   val reference = List(1, 2, 3, 4)
   println(reference.zipRightWithRec) // List((1, 0), (2, 1), (3, 2), (4, 3))
-  println(reference.zipRightWithMap) // List((1, 0), (2, 1), (3, 2), (4, 3))
   println(reference.partition(_ % 2 == 0)) // (List(2, 4), List(1, 3))
   println(reference.span(_ % 2 != 0)) // (List(1), List(2, 3, 4))
   println(reference.span(_ < 3)) // (List(1, 2), List(3, 4))
