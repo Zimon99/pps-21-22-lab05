@@ -5,18 +5,25 @@ import org.junit.Assert.*
 
 class ListTest {
 
-  private var list = List(1, 2, 3, 4)
-  private var zipList = List((1, 0), (2, 1), (3, 2), (4, 3))
-  private var partList = (List(2, 4), List(1, 3))
-  private var partList2 = (List(1, 2), List(3, 4))
+  private val list = List(1, 2, 3, 4)
+  private val zipList = List((1, 0), (2, 1), (3, 2), (4, 3))
+  private val partList1 = (List(2, 4), List(1, 3))
+  private val partList2 = (List(1, 2), List(3, 4))
+  private val spanList1 = (List(1), List(2, 3, 4))
+  private val spanList2 = (List(1, 2), List(3, 4))
 
   @Test def testZipRightWithRec(): Unit = {
     assertEquals(zipList, list.zipRightWithRec)
   }
 
-  @Test def testPartition(): Unit = {
-    assertEquals(list.partition(_ % 2 == 0), partList)
-    assertEquals(list.partition(_ <= 2), partList2)
+  @Test def testPartitionWithRec(): Unit = {
+    assertEquals(list.partitionWithRec(_ % 2 == 0), partList1)
+    assertEquals(list.partitionWithRec(_ <= 2), partList2)
+  }
+
+  @Test def testSpanWithRec(): Unit = {
+    assertEquals(spanList1, list.spanWithRec(_ % 2 != 0))
+    assertEquals(spanList2, list.spanWithRec(_ < 3))
   }
 
 }

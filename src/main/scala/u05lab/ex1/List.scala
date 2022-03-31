@@ -65,14 +65,26 @@ enum List[A]:
       case _ => Nil()
     _rec(this, 0)
 
-  def partition(pred: A => Boolean): (List[A], List[A]) =
+  def zipRightWithMap: List[(A, Int)] = this.map(e => (e, 0)) // TODO
+
+  def partitionWithRec(pred: A => Boolean): (List[A], List[A]) =
     def _rec(l: List[A])(l1: List[A])(l2: List[A]): (List[A], List[A]) = l match
       case h :: t if pred(h) => _rec(t)(l1.append(h :: Nil()))(l2)
       case h :: t => _rec(t)(l1)(l2.append(h :: Nil()))
       case _ => (l1, l2)
     _rec(this)(Nil())(Nil())
 
-  def span(pred: A => Boolean): (List[A], List[A]) = ???
+  def partitionWithFilter(pred: A => Boolean): (List[A], List[A]) =
+    (this.filter(pred), this.filter(e => !pred(e)))
+
+  def partitionWithMap(pred: A => Boolean): (List[A], List[A]) =
+    (this.map((e: A) => if pred(e) then e else e), this.map((e: A) => if pred(e) then e else e))
+
+  def spanWithRec(pred: A => Boolean): (List[A], List[A]) =
+    def _rec(l: List[A])(l1: List[A])(l2: List[A]): (List[A], List[A]) = l match
+      case h :: t if pred(h) => _rec(t)(l1.append(h :: Nil()))(l2)
+      case h :: t => (l1, l2.append(l))
+    _rec(this)(Nil())(Nil())
 
   /** @throws UnsupportedOperationException if the list is empty */
   def reduce(op: (A, A) => A): A = ???
@@ -92,11 +104,11 @@ object List:
 
 @main def checkBehaviour(): Unit =
   val reference = List(1, 2, 3, 4)
-  println(reference.zipRightWithRec) // List((1, 0), (2, 1), (3, 2), (4, 3))
-  println(reference.partition(_ % 2 == 0)) // (List(2, 4), List(1, 3))
-  println(reference.span(_ % 2 != 0)) // (List(1), List(2, 3, 4))
-  println(reference.span(_ < 3)) // (List(1, 2), List(3, 4))
-  println(reference.reduce(_ + _)) // 10
+  //println(reference.zipRightWithRec) // List((1, 0), (2, 1), (3, 2), (4, 3))
+  //println(reference.partitionWithMap(_ % 2 == 0)) // (List(2, 4), List(1, 3))
+  println(reference.spanWithRec(_ % 2 != 0)) // (List(1), List(2, 3, 4))
+  println(reference.spanWithRec(_ < 3)) // (List(1, 2), List(3, 4))
+  //println(reference.reduce(_ + _)) // 10
   try Nil.reduce[Int](_ + _)
   catch case ex: Exception => println(ex) // prints exception
   println(List(10).reduce(_ + _)) // 10
