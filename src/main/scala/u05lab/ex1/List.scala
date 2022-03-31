@@ -65,7 +65,12 @@ enum List[A]:
       case _ => Nil()
     _rec(this, 0)
 
-  def partition(pred: A => Boolean): (List[A], List[A]) = ???
+  def partition(pred: A => Boolean): (List[A], List[A]) =
+    def _rec(l: List[A])(l1: List[A])(l2: List[A]): (List[A], List[A]) = l match
+      case h :: t if pred(h) => _rec(t)(l1.append(h :: Nil()))(l2)
+      case h :: t => _rec(t)(l1)(l2.append(h :: Nil()))
+      case _ => (l1, l2)
+    _rec(this)(Nil())(Nil())
 
   def span(pred: A => Boolean): (List[A], List[A]) = ???
 
