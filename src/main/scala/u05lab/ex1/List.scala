@@ -92,7 +92,9 @@ enum List[A]:
     case h :: t if t.isEmpty => h
     case h :: t => op(h, t.reduce(op))
 
-  def takeRight(n: Int): List[A] = ???
+  def takeRight(n: Int): List[A] = this match
+    case h :: t if n <= this.length => t
+    case h :: t => t.takeRight(n)
 
 // Factories
 object List:
