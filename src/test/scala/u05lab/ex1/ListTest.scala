@@ -3,7 +3,7 @@ package u05lab.ex1
 import org.junit.Test
 import org.junit.Assert.*
 
-class ListTest {
+class ListTest:
 
   private val list = List(1, 2, 3, 4)
   private val list1 = List(Nil)
@@ -37,4 +37,9 @@ class ListTest {
     assertEquals(10, List(10).reduce(_ + _))
   }
 
-}
+  @Test def testTakeRight(): Unit = {
+    assertEquals(List(4), list.takeRight(1))
+    assertEquals(List(3, 4), list.takeRight(2))
+    assertEquals(List(2, 3, 4), list.takeRight(3))
+    assertEquals(List(1, 2, 3, 4), list.takeRight(4))
+  }

@@ -59,14 +59,27 @@ enum List[A]:
   def reverse(): List[A] = foldLeft[List[A]](Nil())((l, e) => e :: l)
 
   /** EXERCISES */
+
+  /** ---------------------- ZIP RIGHT ---------------------- */
   def zipRightWithRec: List[(A, Int)] =
     def _rec(l: List[A], n: Int): List[(A, Int)] = l match
       case h :: t => (h, n) :: _rec(t, n + 1)     // Cons( (h, n), _rec(t) )
       case _ => Nil()
     _rec(this, 0)
 
-  def zipRightWithMap: List[(A, Int)] = this.map(e => (e, 0)) // TODO
+  def zipRightWithFoldLeft1: List[(A, Int)] =
+    this.foldLeft( (Nil().asInstanceOf[List[(A, Int)]], 0)  )( (l, elem) => (l._1.append( (elem, l._2) :: Nil() ), l._2+1  ))._1
 
+  def zipRightWithFoldLeft2: List[(A, Int)] =
+    this.foldLeft( Nil() )( (l, elem) => l.append( (elem, l.length) :: Nil()))
+
+  def myFunction(n: Int): List[(A, Int)] = this match
+    case h :: t => (h, n) :: t.myFunction(n + 1)
+    case _ => Nil()
+
+  def zipRightWithMyFunction: List[(A, Int)] = myFunction(0)
+
+  /** ---------------------- PARTITION ---------------------- */
   def partitionWithRec(pred: A => Boolean): (List[A], List[A]) =
     def _rec(l: List[A])(l1: List[A])(l2: List[A]): (List[A], List[A]) = l match
       case h :: t if pred(h) => _rec(t)(l1.append(h :: Nil()))(l2)
@@ -78,23 +91,29 @@ enum List[A]:
     (this.filter(pred), this.filter(e => !pred(e)))
 
   def partitionWithMap(pred: A => Boolean): (List[A], List[A]) =
-    (this.map((e: A) => if pred(e) then e else e), this.map((e: A) => if pred(e) then e else e))
+    (this.map((e: A) => if pred(e) then e else e), this.map((e: A) => if pred(e) then Nil().asInstanceOf[A] else e))
 
+  /** ---------------------- SPAN ---------------------- */
   def spanWithRec(pred: A => Boolean): (List[A], List[A]) =
     def _rec(l: List[A])(l1: List[A])(l2: List[A]): (List[A], List[A]) = l match
       case h :: t if pred(h) => _rec(t)(l1.append(h :: Nil()))(l2)
       case h :: t => (l1, l2.append(l))
     _rec(this)(Nil())(Nil())
 
+  /** ---------------------- REDUCE ---------------------- */
   /** @throws UnsupportedOperationException if the list is empty */
   def reduce(op: (A, A) => A): A = this match
     case _ if this.isEmpty => throw UnsupportedOperationException()
     case h :: t if t.isEmpty => h
     case h :: t => op(h, t.reduce(op))
 
+  /** ---------------------- TAKE RIGHT ---------------------- */
   def takeRight(n: Int): List[A] = this match
-    case h :: t if n <= this.length => t
-    case h :: t => t.takeRight(n)
+    case h :: t if n == this.length => h :: t
+    case _ :: t => t.takeRight(n)
+
+  def takeRightWithFoldLeft(n: Int): List[A] =
+    this.foldLeft( (Nil().asInstanceOf[List[A]], this.length) )( (len, elem) => if len._2 <= n then ( len._1.append(elem :: Nil()) , len._2 - 1 ) else (len._1, len._2 - 1))._1
 
 // Factories
 object List:
@@ -109,7 +128,7 @@ object List:
 
 @main def checkBehaviour(): Unit =
   val reference = List(1, 2, 3, 4)
-  println(reference.zipRightWithRec) // List((1, 0), (2, 1), (3, 2), (4, 3))
+  println(reference.zipRightWithFoldLeft1) // List((1, 0), (2, 1), (3, 2), (4, 3))
   println(reference.partitionWithMap(_ % 2 == 0)) // (List(2, 4), List(1, 3))
   println(reference.spanWithRec(_ % 2 != 0)) // (List(1), List(2, 3, 4))
   println(reference.spanWithRec(_ < 3)) // (List(1, 2), List(3, 4))
@@ -118,3 +137,5 @@ object List:
   catch case ex: Exception => println(ex) // prints exception
   println(List(10).reduce(_ + _)) // 10
   println(reference.takeRight(3)) // List(2, 3, 4)
+  println(reference.takeRightWithFoldLeft(3)) // List(2, 3, 4)
+
