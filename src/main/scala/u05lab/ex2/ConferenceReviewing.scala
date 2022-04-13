@@ -13,6 +13,7 @@ trait ConferenceReviewing:
   def getReviews: List[(Int, Map[Question, Int])]
 
 object ConferenceReviewing:
+
   enum Question:
     case RELEVANCE, SIGNIFICANCE, CONFIDENCE, FINAL
 
@@ -20,11 +21,12 @@ object ConferenceReviewing:
 
   private class ConferenceReviewingImpl extends ConferenceReviewing:
     private var reviews: List[(Int, Map[Question, Int])] = Nil
-    
+
     override def getReviews: List[(Int, Map[Question, Int])] = reviews
 
     override def loadReview(article: Int, scores: Map[Question, Int]): Unit =
-      reviews = reviews.++(List((article, scores)))
+      //reviews = reviews.++(List((article, scores)))
+      reviews = reviews.appended((article, scores))
 
     override def loadReview(article: Int, relevance: Int, significance: Int, confidence: Int, fin: Int): Unit =
       reviews = reviews.++( List((article, Map(Question.RELEVANCE -> relevance, Question.SIGNIFICANCE -> significance, Question.CONFIDENCE -> confidence, Question.FINAL -> fin))) )
@@ -33,14 +35,21 @@ object ConferenceReviewing:
       reviews.filter( e => e._1 == article).map( e => e._2(question) ).sorted
 
     override def averageFinalScore(article: Int): Double =
-      reviews.filter( e => e._1 == article).map( e => e._2(Question.FINAL) ).sum / reviews.count( e => e._1 == article )
+      reviews.filter( e => e._1 == article).map( e => e._2(Question.FINAL) ).sum / reviews.count( e => e._1 == article ).asInstanceOf[Double]
 
-    override def acceptedArticles: Set[Int] = Set(0)
-      //reviews.filter( e => averageFinalScore(e._1) > 5 )
+    override def acceptedArticles: Set[Int] =
+      reviews.filter( e => averageFinalScore(e._1) > 5 && e._2(Question.RELEVANCE) >= 8 ).map(k => k._1).toSet
+
+    override def sortedAcceptedArticles: List[(Int, Double)] =
+      /*var l: List[(Int, Double)] = Nil
+      acceptedArticles foreach(e => l = l.++( List((e, averageFinalScore(e))) ))
+      l.sortWith(_._2 < _._2)*/
+
+      //acceptedArticles.map(e => (e, averageFinalScore(e))).toList.sortWith( (arg1, arg2) => arg1._2 < arg2._2  )
+
+      acceptedArticles.map(e => (e, averageFinalScore(e))).toList.sortWith(_._2 < _._2)
 
 
-
-    override def sortedAcceptedArticles: List[(Int, Double)] = ???
     override def averageWeightedFinalScoreMap: Map[Int, Double] = ???
 
 
