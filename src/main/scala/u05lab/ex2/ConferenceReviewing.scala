@@ -41,16 +41,14 @@ object ConferenceReviewing:
       reviews.filter( e => averageFinalScore(e._1) > 5 && e._2(Question.RELEVANCE) >= 8 ).map(k => k._1).toSet
 
     override def sortedAcceptedArticles: List[(Int, Double)] =
-      /*var l: List[(Int, Double)] = Nil
-      acceptedArticles foreach(e => l = l.++( List((e, averageFinalScore(e))) ))
-      l.sortWith(_._2 < _._2)*/
-
       //acceptedArticles.map(e => (e, averageFinalScore(e))).toList.sortWith( (arg1, arg2) => arg1._2 < arg2._2  )
-
       acceptedArticles.map(e => (e, averageFinalScore(e))).toList.sortWith(_._2 < _._2)
 
+    // group by --> (Int, List[(Int, Map[Question, Int])])
+    // Formula: CONFIDENCE*FINAL/10
+    override def averageWeightedFinalScoreMap: Map[Int, Double] =
+      reviews.groupBy(e => e._1).map( e => (e._1, calcAverageWeighted(e._2)) ).toMap
 
-    override def averageWeightedFinalScoreMap: Map[Int, Double] = ???
-
-
+    private def calcAverageWeighted(l: List[(Int, Map[Question, Int])]): Double =
+      l.map(  e => e._2(Question.CONFIDENCE) * e._2(Question.FINAL) / 10.0 ).sum / l.size.asInstanceOf[Double]
 
